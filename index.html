@@ -7,37 +7,81 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-
-  <!-- Use the .htaccess and remove these lines to avoid edge case issues.
-       More info: h5bp.com/b/378 -->
+  
+  <!-- Use the .htaccess and remove these lines to avoid edge case issues. h5bp.com/b/378 -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
+  
   <title>Foragers</title>
   <meta name="description" content="Foragers is a Foursquare app that loads all tips from each of your friends and displays each location on a Google Map.">
   <meta name="author" content="Javier Julio, Emiliano Burgos">
-
+  
   <!-- Mobile viewport optimized: j.mp/bplateviewport -->
   <meta name="viewport" content="width=device-width,initial-scale=1">
-
+  
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory: mathiasbynens.be/notes/touch-icons -->
-
+  
   <!-- CSS: implied media=all -->
-  <!-- CSS concatenated and minified via ant build script-->
   <link rel="stylesheet" href="css/styles.css">
   <!-- end CSS-->
   
   <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
   
   <script type="text/javascript">
-  function initializeMap() {
-    var latlng = new google.maps.LatLng(40.7111, -73.9565);
-    var myOptions = {
-      zoom: 8,
-      center: latlng,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var map = new google.maps.Map(document.getElementById("map-container"), myOptions);
+  var client_id = 'DGK44KX54JGMVS3GEZJB0W1NUPZEEQKDIBIYOOT00QFPL1ZE';
+  var callback_url = 'http://localhost:4567';
+  
+  // since our callback URL just redirects to this page we have to test for 
+  // a hash every time which means we have a valid Foursquare token if it exists
+  if (window.location.hash) 
+  {
+    var hash = window.location.hash;
+    token = hash.split('=')[1];
   }
+  else 
+  {
+    // otherwise we have to redirect the user to Foursqaure to authenticate first
+    window.location.href = 'https://foursquare.com/oauth2/authenticate?client_id=' + client_id 
+                         + '&response_type=token&redirect_uri=' + callback_url;
+  }
+  
+  /* HTML 5 geolocation. */
+  navigator.geolocation.getCurrentPosition(function(data) {
+    var lat = data['coords']['latitude'];
+    var lng = data['coords']['longitude'];
+    /* Create map. */
+    var map = new google.maps.Map(document.getElementById("map-container"), {
+      zoom: 17,
+      center: new google.maps.LatLng(lat, lng),
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+    
+    /* Query foursquare API for venue recommendations near the current location. */
+    $.getJSON('https://api.foursquare.com/v2/venues/explore?ll=' + lat + ',' + lng + '&oauth_token=' + token, {}, function(data) {
+      venues = data['response']['groups'][0]['items'];
+      
+      console.log(data.meta.code);
+      console.log(venues);
+      
+      var infowindow = new google.maps.InfoWindow();
+      
+      /* Place marker for each venue. */
+      for (var i = 0; i < venues.length; i++) {
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(venues[i]['venue']['location']['lat'], venues[i]['venue']['location']['lng']),
+          map: map,
+          title: venues[i]['venue']['name']
+        });
+        
+        // custom marker properties
+        marker.content = venues[i]['venue']['name'] + '<br />' + venues[i]['venue']['location']['address'];
+        
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent(this.content);
+          infowindow.open(map, this);
+        });
+      }
+    });
+  });
   </script>
   
   <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
@@ -47,7 +91,7 @@
        For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ 
   <script src="js/libs/modernizr-2.0.6.min.js"></script>-->
 </head>
-<body onload="initializeMap();">
+<body>
   
   <div id="container">
     
@@ -57,7 +101,7 @@
     
     <div id="main" role="main">
       
-      <div id="map-container" style="width:100%; height:100%">
+      <div id="map-container">
         
       </div>
       
