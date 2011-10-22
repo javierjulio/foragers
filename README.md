@@ -1,0 +1,1 @@
+Foragers is a Foursquare app that once you login it loads all tips from each of your friends and displays each location on a Google Map. No data is stored server side.
