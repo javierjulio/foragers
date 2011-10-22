@@ -211,9 +211,8 @@ td { vertical-align: top; }
    Author: Javier Julio
    ========================================================================== */
 
-
-
-
+html { height: 100% }
+#main, body, #container { height: 100%; margin: 0; padding: 0 }
 
 
 
