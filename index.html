@@ -54,7 +54,47 @@
       center: new google.maps.LatLng(lat, lng),
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
+    /*
+    $.getJSON('https://api.foursquare.com/v2/users/self/friends?oauth_token=' + token, {}, function(data) {
+      console.log('FRIENDS', data.response.friends);
+      
+      if (data.meta.code == 200) 
+      {
+        var infowindow = new google.maps.InfoWindow();
+        var friends = data.response.friends.items;
+        for (var i = 0; i < friends.length; i++)
+        {
+          var friend = friends[i];
+          
+          loadFriendTips(friend, infowindow);
+        }
+      }
+    });
     
+    function loadFriendTips(friend, infowindow) 
+    {
+      $.getJSON('https://api.foursquare.com/v2/users/' + friend.id + '/tips?oauth_token=' + token, {}, function(data) {
+        console.log(friend.id);
+        venues = data['response']['tips']['items'];
+        // place marker for each venue
+        for (var i = 0; i < venues.length; i++) {
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(venues[i]['venue']['location']['lat'], venues[i]['venue']['location']['lng']),
+            map: map,
+            title: venues[i]['venue']['name']
+          });
+          
+          // custom marker properties
+          marker.content = venues[i]['venue']['name'] + '<br />' + venues[i]['venue']['location']['address'];
+          
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.setContent(this.content);
+            infowindow.open(map, this);
+          });
+        }
+      });
+    }
+    */
     /* Query foursquare API for venue recommendations near the current location. */
     $.getJSON('https://api.foursquare.com/v2/venues/explore?ll=' + lat + ',' + lng + '&oauth_token=' + token, {}, function(data) {
       venues = data['response']['groups'][0]['items'];
@@ -64,7 +104,7 @@
       
       var infowindow = new google.maps.InfoWindow();
       
-      /* Place marker for each venue. */
+      // place marker for each venue
       for (var i = 0; i < venues.length; i++) {
         var marker = new google.maps.Marker({
           position: new google.maps.LatLng(venues[i]['venue']['location']['lat'], venues[i]['venue']['location']['lng']),
