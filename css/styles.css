@@ -211,9 +211,13 @@ td { vertical-align: top; }
    Author: Javier Julio
    ========================================================================== */
 
+/* required by Google Maps otherwise doesn't render at all */
 html { height: 100% }
-#main, body, #container { height: 100%; margin: 0; padding: 0 }
-
+body, #container, #main { height: 100%; margin: 0; padding: 0 }
+#map-container {
+  height: 100%;
+  width: 100%;
+}
 
 
 
